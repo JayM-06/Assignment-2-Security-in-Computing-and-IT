@@ -55,4 +55,51 @@ print("q =", q)
 n = p * q
 ntotient = (p-1)*(q-1)
 
+# Put these up with is_prime(), outside any loop
+def gcd(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+# ... after computing n and ntotient:
+print("n =", n)
 print("phi(n) =", ntotient)
+
+def is_valid_e(e, ntotient):
+    return 1 < e < ntotient and gcd(e, ntotient) == 1
+
+while True:
+    try:
+        e = int(input("Please enter a valid e: "))
+
+        if is_valid_e(e, ntotient):
+            print("Valid e:", e, "with gcd(e, phi(n)) = 1")
+            break
+        else:
+            print("Invalid e. It must satisfy 1 < e < phi(n) and gcd(e, phi(n)) = 1.")
+
+    except ValueError:
+        print("Please enter a whole number.")
+
+        
+def mod_inverse(e, ntotient):
+    return pow(e, -1, ntotient)
+
+d = mod_inverse(e, ntotient)
+
+print("Check: (e * d) mod phi(n) =", (e * d) % ntotient)   # must print 1
+
+
+while True:
+    try:
+        user_input_msg = int(input("Enter valid student ID: "))
+
+        if len(str(user_input_msg)) != 7:
+            print("Student ID must have 7 digits.")
+        else:
+            break
+
+    except ValueError:
+        print("Please enter a whole number.")
+
+print("Ciphertext = ", pow (user_input_msg, e, n))
