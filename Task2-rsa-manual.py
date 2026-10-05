@@ -10,20 +10,19 @@ os.makedirs(keys_dir, exist_ok=True)
 def is_prime(n):
     if n < 2:
         return False
-
+    
     for i in range(2, int(n ** 0.5) + 1):
         if n % i == 0:
             return False
-
+        
     return True
-
 
 while True:
     try:
         p = int(input("Enter a prime number (5 or more digits): "))
-
+        
         if len(str(p)) < 5:
-            print("Error: The number must have at least 5 digits.")
+            print("Error: The number must have at least 5 digits.")    
         elif not is_prime(p):
             print("Error: The number is not prime.")
         else:
@@ -32,3 +31,28 @@ while True:
 
     except ValueError:
         print("Error: Please enter a whole number.")
+
+while True:
+    try:
+        q = int(input("Enter prime number q (5 or more digits): "))
+
+        if len(str(q)) < 5:
+            print("Number must have at least 5 digits.")
+        elif not is_prime(q):
+            print("Number is not prime.")
+        elif q == p:
+            print("q must be different from p.")
+        else:
+            break
+
+    except ValueError:
+        print("Please enter a whole number.")
+
+
+print("p =", p)
+print("q =", q)
+
+n = p * q
+ntotient = (p-1)*(q-1)
+
+print("phi(n) =", ntotient)
