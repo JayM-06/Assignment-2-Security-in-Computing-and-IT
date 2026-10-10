@@ -1,5 +1,46 @@
-# make sure you have installed cryptography library
-# pip install cryptography
+"""
+Task 3: Hybrid encryption (AES + RSA) to securely send task2.txt
+
+LECTORIAL CODE REFERENCES
+Lectorial 8 - hybrid_crypto.py
+    This example does hybrid encryption on a string, we used it as the base 
+    for our code. What we used from it:
+      - the structure and function names: generate_rsa_keys(),
+        encrypt_message() and decrypt_message()
+      - rsa.generate_private_key() with public_exponent=65537 and
+        key_size=2048 to create the RSA key pair
+      - os.urandom(32) for random AES-256 key and os.urandom(16) for the IV
+      - Cipher(algorithms.AES(key), modes.CFB(iv)) with the encryptor and
+        decryptor to encrypt and decrypt the data
+      - encrypting the AES key with the public key using RSA OAEP padding
+        (MGF1 with SHA256), decrypting it with the private key
+      - b64encode to print the keys and encrypted values to the user
+    What we changed:
+      - it now encrypts and decrypts a file (task2.txt) instead of a string
+      - the RSA keys are saved to separate .pem files and loaded back from
+        them, and the decrypted data is saved to its own file
+      - the encrypted file and the encrypted AES key are saved to files
+      - all file paths use the BASE variable
+      - the RSA public and private keys and the AES key are also displayed
+
+Lectorial 5 - aes_cfb_file.py
+    What we used from it:
+      - it showed that AES in CFB mode needs no padding
+      - reading and writing files as bytes ("rb" and "wb")
+      - storing the IV at the start of the encrypted file and reading the
+        first 16 bytes back as the IV when decrypting
+      - the BASE = os.path.dirname(os.path.abspath(__file__)) line
+
+Lectorial 5 - rsa_padding_file.py
+    Used as a second reference for the RSA OAEP padding block and for
+    reading and writing the files with BASE.
+
+So AES encrypts the file and RSA encrypts the AES key.
+1. the code generates the RSA keys saved in the keys folder
+2. we encrypt the file with a random AES key, then encrypt that AES
+    key with the RSA public key
+3. decrypts the AES key with their RSA private key, then decrypts the file with the AES key
+"""
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
@@ -26,7 +67,7 @@ os.makedirs(keys_dir, exist_ok=True)
 os.makedirs(output_dir, exist_ok=True)
 
 
-# Step 1: friend generates RSA keys, each key is saved in its own file
+# Generating RSA keys where each key is saved in its own file
 def generate_rsa_keys():
     private_key = rsa.generate_private_key(
         public_exponent=65537,
@@ -34,7 +75,8 @@ def generate_rsa_keys():
     )
     public_key = private_key.public_key()
 
-    # turn the keys into PEM text so they can be saved and displayed
+    # turn the keys into pem text so they can be saved and displayed
+    # using pem file rather than normal txt as that is used for RSA
     private_pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
@@ -54,26 +96,26 @@ def generate_rsa_keys():
     return private_pem, public_pem
 
 
-# Step 2: I encrypt the file with AES, then encrypt the AES key with RSA
+# encrypt the file with AES, then encrypt the AES key with RSA
 def encrypt_message():
     # read the file to be sent
     with open(input_file, "rb") as in_file:
         message = in_file.read()
 
-    # Generate a random symmetric key for AES (32 bytes = AES-256)
+    # Generate a random symmetric key for AES 32 bytes = AES-256
     symmetric_key = os.urandom(32)
 
-    # Encrypt the data with AES (CFB mode, no padding needed)
+    # Encrypt the data with AES CFB mode
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
     encryptor = cipher.encryptor()
     encrypted_message = encryptor.update(message) + encryptor.finalize()
 
-    # load the friend's public key from its file
+    # get the public key from its file
     with open(public_key_file, "rb") as public_file:
         public_key = serialization.load_pem_public_key(public_file.read())
 
-    # Encrypt the symmetric key with RSA (OAEP padding)
+    # encrypt the symmetric key with RSA with OAEP padding
     encrypted_key = public_key.encrypt(
         symmetric_key,
         asym_padding.OAEP(
@@ -83,7 +125,7 @@ def encrypt_message():
         )
     )
 
-    # save the encrypted file (IV first, then data) and the encrypted AES key
+    # save the encrypted file with IV first then data and the encrypted AES key
     with open(encrypted_file, "wb") as enc_file:
         enc_file.write(iv + encrypted_message)
     with open(encrypted_key_file, "wb") as enc_key_file:
@@ -92,7 +134,7 @@ def encrypt_message():
     return message, symmetric_key, iv, encrypted_message, encrypted_key
 
 
-# Step 3: friend decrypts the AES key with RSA, then decrypts the file with AES
+# decrypts the AES key with RSA, then decrypts the file with AES
 def decrypt_message():
     # read the encrypted file, the first 16 bytes are the IV
     with open(encrypted_file, "rb") as enc_file:
@@ -101,7 +143,7 @@ def decrypt_message():
     with open(encrypted_key_file, "rb") as enc_key_file:
         encrypted_key = enc_key_file.read()
 
-    # load the friend's private key from its file
+    # load the private key from its file
     with open(private_key_file, "rb") as private_file:
         private_key = serialization.load_pem_private_key(private_file.read(), password=None)
 

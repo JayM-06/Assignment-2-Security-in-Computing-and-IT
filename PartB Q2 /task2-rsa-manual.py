@@ -1,3 +1,19 @@
+"""
+Task 2: Manual RSA encryption and decryption of a student ID
+
+LECTORIAL CODE REFERENCES
+Lectorial 5 - rsa_file.py
+    We only used one thing from this lectorial code
+      - the BASE = os.path.dirname(os.path.abspath(__file__)) line, which
+        makes the file paths work on all operating systems. All of our
+        folder and file paths (input, keys and output) are built from BASE
+        using os.path.join.
+
+The rest of the program was written by us and does not come from the
+lectorial code. This includes the prime number validation, calculating
+n and phi(n), choosing e, calculating d with a modular inverse, and
+the manual RSA encryption and decryption using pow().
+"""
 import os
 
 # Making sure the file path is able to work on all os
