@@ -1,5 +1,5 @@
 """
-Task 3: Hybrid encryption (AES + RSA) to securely send task2.txt
+Q3: Hybrid encryption (AES + RSA) to securely send task2.txt
 
 LECTORIAL CODE REFERENCES
 Lectorial 8 - hybrid_crypto.py
@@ -42,6 +42,7 @@ So AES encrypts the file and RSA encrypts the AES key.
 3. decrypts the AES key with their RSA private key, then decrypts the file with the AES key
 """
 
+# uses cryptography library
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
 from cryptography.hazmat.primitives import hashes, serialization

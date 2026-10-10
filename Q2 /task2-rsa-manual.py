@@ -1,5 +1,5 @@
 """
-Task 2: Manual RSA encryption and decryption of a student ID
+Q2: Manual RSA encryption and decryption of a student ID
 
 LECTORIAL CODE REFERENCES
 Lectorial 5 - rsa_file.py
